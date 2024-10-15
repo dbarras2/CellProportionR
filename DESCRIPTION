@@ -1,12 +1,21 @@
 Package: CellProportionR
-Title: What the Package Does (One Line, Title Case)
+Type: Package
+Title: Interrogation of Cell Type Proportions and frequencies in ACT cohorts
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Author: David Barras
+Maintainer: The package maintainer <david.barras@chuv.ch>
+Description: This package contains functions to interrogate differences in cell type proportions between different groups of samples in single-cell object with cell type annotation.
+License: file LICENSE
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
+LazyData: true
+Depends:
+  BiocManager (>= 1.30.22),
+  ComplexHeatmap (>= 2.16.0),
+  limma,
+  reshape2,
+  crayon,
+  circlize,
+  usethis,
+  scales,
+  dplyr
 RoxygenNote: 7.3.1
