@@ -387,110 +387,109 @@ CellType_Proportion_Heatmap <- function(single_cell_data,
                        width = unit(14, "cm"), height = unit(16, "cm"))
   } else {
 
-  }
+    # Create unique categories in alphabetical order
+    Gap_template <- data.frame("CT"=colnames(collect_stats))
+    Gap_template$strat<-meta[match(Gap_template$CT,meta[,column_cell_type]),cell_type_strats[length(cell_type_strats)-1]]
+    idx<-which(is.na(Gap_template$strat))
+    if(length(idx)>0){Gap_template$strat[idx]<-"Rest"}
+    new_vector <- character(length(Gap_template$strat))
 
-  # Create unique categories in alphabetical order
-  Gap_template <- data.frame("CT"=colnames(collect_stats))
-  Gap_template$strat<-meta[match(Gap_template$CT,meta[,column_cell_type]),cell_type_strats[length(cell_type_strats)-1]]
-  idx<-which(is.na(Gap_template$strat))
-  if(length(idx)>0){Gap_template$strat[idx]<-"Rest"}
-  new_vector <- character(length(Gap_template$strat))
+    current_label <- "B1"
+    increment_label <- function(label) {
+      num <- as.numeric(substring(label, 2))
+      letter <- substring(label, 1, 1)
 
-  current_label <- "B1"
-  increment_label <- function(label) {
-    num <- as.numeric(substring(label, 2))
-    letter <- substring(label, 1, 1)
-
-    if (num < 9) {
-      return(paste0(letter, num + 1))
-    } else {
-      return(paste0(LETTERS[which(LETTERS == letter) + 1], 1))
+      if (num < 9) {
+        return(paste0(letter, num + 1))
+      } else {
+        return(paste0(LETTERS[which(LETTERS == letter) + 1], 1))
+      }
     }
-  }
-  new_vector[1] <- current_label
-  for(i in 2:length(Gap_template$strat)){
-    if (Gap_template$strat[i] != Gap_template$strat[i - 1]) {
-      current_label <- increment_label(current_label)
+    new_vector[1] <- current_label
+    for(i in 2:length(Gap_template$strat)){
+      if (Gap_template$strat[i] != Gap_template$strat[i - 1]) {
+        current_label <- increment_label(current_label)
+      }
+      new_vector[i] <- current_label
     }
-    new_vector[i] <- current_label
-  }
-  Gap_template$alphabetical<-new_vector
+    Gap_template$alphabetical<-new_vector
 
-  gaps_row<-c(rep("A",length(row_norm)),Gap_template$alphabetical)
-  gaps_col<-gaps_row[-c(1:length(row_norm))]
+    gaps_row<-c(rep("A",length(row_norm)),Gap_template$alphabetical)
+    gaps_col<-gaps_row[-c(1:length(row_norm))]
 
-  # Change names for stratification
-  if(!is.null(stratification_names)){
-    if(length(stratification_names)!=length(row_norm)){
-      warning("The vector of names for stratification layers (`stratification_names` parameter) should be the same length than the number of cell type stratification (= ",length(row_norm),")")
-      return()
+    # Change names for stratification
+    if(!is.null(stratification_names)){
+      if(length(stratification_names)!=length(row_norm)){
+        warning("The vector of names for stratification layers (`stratification_names` parameter) should be the same length than the number of cell type stratification (= ",length(row_norm),")")
+        return()
+      }
+
+      if(length(stratification_names)==1){
+        rownames(collect_stats)[1]<-"total cells"
+      }
+      if(length(stratification_names)>1){
+        names<-c("total cells",stratification_names[-length(stratification_names)])
+        rownames(collect_stats)[1:length(names)]<-names
+      }
     }
 
-    if(length(stratification_names)==1){
-      rownames(collect_stats)[1]<-"total cells"
+    rownames(collect_stats)[1:length(row_norm)]<-paste0("Out of ",rownames(collect_stats)[1:length(row_norm)])
+
+    cat <- rle(Gap_template$strat)$values
+    ########################################################################
+
+    if(!include_ratio){
+      heatmap <- Heatmap(as.matrix(collect_stats), name = "directed -log10(pval)", na_col = "lightgray",
+                         col=col_fun,cluster_rows=F,
+                         #row_order = 1:nrow(collect_stats),
+                         column_order = 1:ncol(collect_stats),
+                         column_title = "Cell Type Proportion",
+                         column_title_gp = gpar(fontsize = 15, fontface = "bold"),
+                         row_names_side = "left",column_names_side = "top",
+                         row_names_gp = gpar(fontsize = 6),column_names_gp = gpar(fontsize = 6),
+                         row_labels=gsub("_"," ",rownames(collect_stats)),
+                         column_labels=gsub("_"," ",colnames(collect_stats)),
+                         column_split=gaps_col,column_gap = unit(c(rep(1,length(unique(gaps_row))-1)), "mm"),
+                         border = TRUE,
+                         cell_fun = function(j, i, x, y, w, h, col) {
+                           grid.text(signif_annot[i, j], x, y,gp = gpar(fontsize = 8))
+                         },
+                         row_title = c("Proportion"),
+                         row_title_gp = gpar(fontsize = 12),
+                         width = unit(14, "cm"), height = unit(1, "cm"),
+                         top_annotation = HeatmapAnnotation(foo = anno_block(gp = gpar(fill = "white"),
+                                                                             labels = cat,
+                                                                             labels_gp = gpar(col = "black", fontsize = 5))))
+
     }
-    if(length(stratification_names)>1){
-      names<-c("total cells",stratification_names[-length(stratification_names)])
-      rownames(collect_stats)[1:length(names)]<-names
+
+    if(include_ratio){
+      heatmap <- Heatmap(as.matrix(collect_stats), name = "directed -log10(pval)", na_col = "lightgray",
+                         col=col_fun,cluster_rows=F,
+                         #row_order = 1:nrow(collect_stats),
+                         column_order = 1:ncol(collect_stats),
+                         column_title = "Cell Type Proportion and Ratio",
+                         column_title_gp = gpar(fontsize = 15, fontface = "bold"),
+                         row_names_side = "left",column_names_side = "top",
+                         row_names_gp = gpar(fontsize = 6),column_names_gp = gpar(fontsize = 6),
+                         row_labels=gsub("_"," ",rownames(collect_stats)),
+                         column_labels=gsub("_"," ",colnames(collect_stats)),
+                         row_split=gaps_row,row_gap = unit(c(3,rep(1,length(unique(gaps_row))-1)), "mm"),
+                         column_split=gaps_col,column_gap = unit(c(rep(1,length(unique(gaps_row))-1)), "mm"),
+                         border = TRUE,
+                         cell_fun = function(j, i, x, y, w, h, col) {
+                           grid.text(signif_annot[i, j], x, y,gp = gpar(fontsize = 8))
+                         },
+                         row_title = c("Proportion",
+                                       rep(" ",(length(unique(gaps_row))-2)/2),
+                                       "Ratio between cell type proportion (out of total)",
+                                       rep(" ",length(unique(gaps_row))-2-length(rep(" ",(length(unique(gaps_row))-2)/2)))),
+                         row_title_gp = gpar(fontsize = 12),
+                         width = unit(14, "cm"), height = unit(16, "cm"),
+                         top_annotation = HeatmapAnnotation(foo = anno_block(gp = gpar(fill = "white"),
+                                                                             labels = cat,
+                                                                             labels_gp = gpar(col = "black", fontsize = 5))))
     }
-  }
-
-  rownames(collect_stats)[1:length(row_norm)]<-paste0("Out of ",rownames(collect_stats)[1:length(row_norm)])
-
-  cat<-rle(Gap_template$strat)$values
-  ########################################################################
-
-  if(!include_ratio){
-    heatmap <- Heatmap(as.matrix(collect_stats), name = "directed -log10(pval)", na_col = "lightgray",
-                       col=col_fun,cluster_rows=F,
-                       #row_order = 1:nrow(collect_stats),
-                       column_order = 1:ncol(collect_stats),
-                       column_title = "Cell Type Proportion",
-                       column_title_gp = gpar(fontsize = 15, fontface = "bold"),
-                       row_names_side = "left",column_names_side = "top",
-                       row_names_gp = gpar(fontsize = 6),column_names_gp = gpar(fontsize = 6),
-                       row_labels=gsub("_"," ",rownames(collect_stats)),
-                       column_labels=gsub("_"," ",colnames(collect_stats)),
-                       column_split=gaps_col,column_gap = unit(c(rep(1,length(unique(gaps_row))-1)), "mm"),
-                       border = TRUE,
-                       cell_fun = function(j, i, x, y, w, h, col) {
-                         grid.text(signif_annot[i, j], x, y,gp = gpar(fontsize = 8))
-                       },
-                       row_title = c("Proportion"),
-                       row_title_gp = gpar(fontsize = 12),
-                       width = unit(14, "cm"), height = unit(1, "cm"),
-                       top_annotation = HeatmapAnnotation(foo = anno_block(gp = gpar(fill = "white"),
-                                                                           labels = cat,
-                                                                           labels_gp = gpar(col = "black", fontsize = 5))))
-
-  }
-
-  if(include_ratio){
-    heatmap <- Heatmap(as.matrix(collect_stats), name = "directed -log10(pval)", na_col = "lightgray",
-                       col=col_fun,cluster_rows=F,
-                       #row_order = 1:nrow(collect_stats),
-                       column_order = 1:ncol(collect_stats),
-                       column_title = "Cell Type Proportion and Ratio",
-                       column_title_gp = gpar(fontsize = 15, fontface = "bold"),
-                       row_names_side = "left",column_names_side = "top",
-                       row_names_gp = gpar(fontsize = 6),column_names_gp = gpar(fontsize = 6),
-                       row_labels=gsub("_"," ",rownames(collect_stats)),
-                       column_labels=gsub("_"," ",colnames(collect_stats)),
-                       row_split=gaps_row,row_gap = unit(c(3,rep(1,length(unique(gaps_row))-1)), "mm"),
-                       column_split=gaps_col,column_gap = unit(c(rep(1,length(unique(gaps_row))-1)), "mm"),
-                       border = TRUE,
-                       cell_fun = function(j, i, x, y, w, h, col) {
-                         grid.text(signif_annot[i, j], x, y,gp = gpar(fontsize = 8))
-                       },
-                       row_title = c("Proportion",
-                                     rep(" ",(length(unique(gaps_row))-2)/2),
-                                     "Ratio between cell type proportion (out of total)",
-                                     rep(" ",(length(unique(gaps_row))-2)/2)),
-                       row_title_gp = gpar(fontsize = 12),
-                       width = unit(14, "cm"), height = unit(16, "cm"),
-                       top_annotation = HeatmapAnnotation(foo = anno_block(gp = gpar(fill = "white"),
-                                                                           labels = cat,
-                                                                           labels_gp = gpar(col = "black", fontsize = 5))))
   }
 
   return(heatmap)
