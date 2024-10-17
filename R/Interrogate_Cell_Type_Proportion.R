@@ -107,6 +107,10 @@ CellType_Proportion_Heatmap <- function(single_cell_data,
   Sample_annot$Stratif[idx_dn]<-"dn"
   Sample_annot<-Sample_annot[which(Sample_annot$Stratif %in% c("up","dn")),]
   Sample_annot$Stratif<-factor(Sample_annot$Stratif,levels = c("up","dn"))
+
+  ## CORREEECCTT THAATT
+  sample_order_1<-Sample_annot[which(Sample_annot$Stratif=="up"),sample_colname]
+  sample_order_2<-Sample_annot[which(Sample_annot$Stratif=="dn"),sample_colname]
   #########################################################################
 
   # List and stratification of all cell types
@@ -176,6 +180,12 @@ CellType_Proportion_Heatmap <- function(single_cell_data,
   }
   ########################################################################
 
+
+
+
+
+
+
   # Proportions out of total cells
   ########################################################################
 
@@ -189,6 +199,8 @@ CellType_Proportion_Heatmap <- function(single_cell_data,
     if(nrow(tmp1)>0){
       Imm1<-tmp1$value[which(tmp1$Stratif=="up")];names(Imm1)<-as.character(tmp1[,sample_colname][which(tmp1$Stratif=="up")])
       Imm2<-tmp1$value[which(tmp1$Stratif=="dn")];names(Imm2)<-as.character(tmp1[,sample_colname][which(tmp1$Stratif=="dn")])
+      Imm1 <- setNames(ifelse(sample_order_1 %in% names(Imm1),Imm1[sample_order_1],0),sample_order_1)
+      Imm2 <- setNames(ifelse(sample_order_2 %in% names(Imm2),Imm2[sample_order_2],0),sample_order_2)
       t<-makeStatisticalTest(Imm1[!is.na(Imm1)],Imm2[!is.na(Imm2)],statistics)
       collect_stats["All",cell_subtypes[i]]<-ifelse(t$statistic>0,(-log10(t$p.value)),-(-log10(t$p.value)))
     }
@@ -207,6 +219,8 @@ CellType_Proportion_Heatmap <- function(single_cell_data,
       tmp1<-Proportions[which(Proportions$Cell_Type==ct),]
       Imm1<-tmp1$value[which(tmp1$Stratif=="up")];names(Imm1)<-as.character(tmp1[,sample_colname][which(tmp1$Stratif=="up")])
       Imm2<-tmp1$value[which(tmp1$Stratif=="dn")];names(Imm2)<-as.character(tmp1[,sample_colname][which(tmp1$Stratif=="dn")])
+      Imm1 <- setNames(ifelse(sample_order_1 %in% names(Imm1),Imm1[sample_order_1],0),sample_order_1)
+      Imm2 <- setNames(ifelse(sample_order_2 %in% names(Imm2),Imm2[sample_order_2],0),sample_order_2)
       t<-makeStatisticalTest(Imm1[!is.na(Imm1)],Imm2[!is.na(Imm2)],statistics)
       collect_stats["All",ct]<-ifelse(t$statistic>0,(-log10(t$p.value)),-(-log10(t$p.value)))
     }
@@ -235,6 +249,8 @@ CellType_Proportion_Heatmap <- function(single_cell_data,
         tmp1<-Proportions[which(Proportions$Cell_Type==ct),]
         Imm1<-tmp1$value[which(tmp1$Stratif=="up")];names(Imm1)<-as.character(tmp1[,sample_colname][which(tmp1$Stratif=="up")])
         Imm2<-tmp1$value[which(tmp1$Stratif=="dn")];names(Imm2)<-as.character(tmp1[,sample_colname][which(tmp1$Stratif=="dn")])
+        Imm1 <- setNames(ifelse(sample_order_1 %in% names(Imm1),Imm1[sample_order_1],0),sample_order_1)
+        Imm2 <- setNames(ifelse(sample_order_2 %in% names(Imm2),Imm2[sample_order_2],0),sample_order_2)
         t<-makeStatisticalTest(Imm1[!is.na(Imm1)],Imm2[!is.na(Imm2)],statistics)
         collect_stats[strat,ct]<-ifelse(t$statistic>0,(-log10(t$p.value)),-(-log10(t$p.value)))
       }
@@ -264,6 +280,8 @@ CellType_Proportion_Heatmap <- function(single_cell_data,
             tmp1<-Proportions[which(Proportions$Cell_Type==ct),]
             Imm1<-tmp1$value[which(tmp1$Stratif=="up")];names(Imm1)<-as.character(tmp1[,sample_colname][which(tmp1$Stratif=="up")])
             Imm2<-tmp1$value[which(tmp1$Stratif=="dn")];names(Imm2)<-as.character(tmp1[,sample_colname][which(tmp1$Stratif=="dn")])
+            Imm1 <- setNames(ifelse(sample_order_1 %in% names(Imm1),Imm1[sample_order_1],0),sample_order_1)
+            Imm2 <- setNames(ifelse(sample_order_2 %in% names(Imm2),Imm2[sample_order_2],0),sample_order_2)
             t<-makeStatisticalTest(Imm1[!is.na(Imm1)],Imm2[!is.na(Imm2)],statistics)
             collect_stats[outof_strat,ct]<-ifelse(t$statistic>0,(-log10(t$p.value)),-(-log10(t$p.value)))
           }
@@ -316,6 +334,8 @@ CellType_Proportion_Heatmap <- function(single_cell_data,
 
       Imm1<-tmp1$Ratio[which(tmp1$Stratif=="up")];names(Imm1)<-as.character(tmp1[,sample_colname][which(tmp1$Stratif=="up")]);Imm1<-Imm1[complete.cases(Imm1)]
       Imm2<-tmp1$Ratio[which(tmp1$Stratif=="dn")];names(Imm2)<-as.character(tmp1[,sample_colname][which(tmp1$Stratif=="dn")]);Imm2<-Imm2[complete.cases(Imm2)]
+      Imm1 <- setNames(ifelse(sample_order_1 %in% names(Imm1),Imm1[sample_order_1],0),sample_order_1)
+      Imm2 <- setNames(ifelse(sample_order_2 %in% names(Imm2),Imm2[sample_order_2],0),sample_order_2)
 
       if((length(Imm1)>0)&(length(Imm2)>0)){
         t<-makeStatisticalTest(Imm1[!is.na(Imm1)],Imm2[!is.na(Imm2)],statistics)
@@ -391,7 +411,7 @@ CellType_Proportion_Heatmap <- function(single_cell_data,
     Gap_template <- data.frame("CT"=colnames(collect_stats))
     Gap_template$strat<-meta[match(Gap_template$CT,meta[,column_cell_type]),cell_type_strats[length(cell_type_strats)-1]]
     idx<-which(is.na(Gap_template$strat))
-    if(length(idx)>0){Gap_template$strat[idx]<-"Rest"}
+    if(length(idx)>0){Gap_template$strat[idx]<-"Bulk"}
     new_vector <- character(length(Gap_template$strat))
 
     current_label <- "B1"
