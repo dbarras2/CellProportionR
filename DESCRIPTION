@@ -1,0 +1,22 @@
+Package: CellProportionR
+Type: Package
+Title: Interrogation of Cell Type Proportions and frequencies in ACT cohorts
+Version: 1.0.3
+Author: David Barras
+Maintainer: The package maintainer <david.barras@chuv.ch>
+Description: This package contains functions to interrogate differences in cell type proportions between different groups of samples in single-cell object with cell type annotation.
+License: file LICENSE
+Encoding: UTF-8
+LazyData: true
+biocViews:
+Depends:
+  BiocManager (>= 1.30.22),
+  ComplexHeatmap (>= 2.16.0),
+  limma,
+  reshape2,
+  crayon,
+  circlize,
+  usethis,
+  scales,
+  dplyr
+RoxygenNote: 7.3.1
