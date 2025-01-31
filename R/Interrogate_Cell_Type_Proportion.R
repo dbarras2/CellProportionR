@@ -924,15 +924,22 @@ CellType_Proportion_Boxplot <- function(cell_proportion_object,
   for(j in 1:length(groups)){
     idx<-which(Collect_Proportion[,stratification] %in% groups[[j]])
     tmp<-Collect_Proportion$value[idx]
+    tmp <- tmp[!is.na(tmp)][!is.infinite(tmp[!is.na(tmp)])]
     assign(paste0("Imm",j),tmp)
     list_Imm[[j]]<-tmp[!is.na(tmp)]
     max<-c(max,tmp[!is.na(tmp)])
     min<-c(min,tmp[!is.na(tmp)])
     Collect_Proportion$x[idx]<-j
   }
-  max<-max(max)
-  min<-min(min)
-  range<-(max-min)
+  max <- max(max)
+  min <- min(min)
+  range <- (max-min)
+
+  # Go out of the function if any of the vector has a zero length
+  if (any(sapply(mget(ls(pattern = "^Imm\\d+$"), inherits = TRUE), length) == 0)) {
+    warning("One condition had zero values without NAs or infinite")
+    return()
+  }
   #########################################################################
 
   ## Boxplot
