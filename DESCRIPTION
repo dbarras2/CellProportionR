@@ -1,7 +1,7 @@
 Package: CellProportionR
 Type: Package
 Title: Interrogation of Cell Type Proportions in scRNA-seq data
-Version: 1.0.4
+Version: 1.0.5
 Author: David Barras
 Maintainer: The package maintainer <david.barras@chuv.ch>
 Description: This package contains functions to interrogate differences in cell type proportions between different groups of samples in single-cell object with cell type annotation.
